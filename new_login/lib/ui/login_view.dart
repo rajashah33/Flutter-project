@@ -3,8 +3,8 @@ import 'package:new_login/enums/view_states.dart';
 import 'package:new_login/scoped_models/login_model.dart';
 import 'package:new_login/ui/base_view.dart';
 import 'package:new_login/ui/register_view.dart';
-
-import '../style.dart';
+import 'package:new_login/ui/shared/app_colors.dart';
+import 'package:new_login/ui/shared/ui_helper.dart';
 
 class Login extends StatefulWidget {
   final bool isSeller;
@@ -17,12 +17,30 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   // BuildContext get context => null;
 
+  final emailFocus = new FocusNode();
+  final passwordFocus = new FocusNode();
+
   @override
   Widget build(BuildContext context) {
     return BaseView<LoginModel>(
       builder: (context, child, model) {
         return Scaffold(
-          body: _buildLoginCard(model),
+          resizeToAvoidBottomInset: true,
+          body: SafeArea(
+            child: Stack(fit: StackFit.expand, children: <Widget>[
+              Container(
+                height: MediaQuery.of(context).size.width,
+                width: MediaQuery.of(context).size.height,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.fill,
+                    image: AssetImage('images/bgimage1.jpg'),
+                  ),
+                ),
+              ),
+              _buildLoginCard(model),
+            ]),
+          ),
         );
       },
     );
@@ -39,8 +57,8 @@ class _LoginState extends State<Login> {
       ),
       child: new Wrap(children: <Widget>[
         Card(
-          color: Color(0xffFFFFFF),
-          elevation: 4.0,
+          color: Colors.white.withOpacity(0.9),
+          elevation: 8.0,
           child: new Wrap(
             children: <Widget>[
               _buildLoginCardTitle(),
@@ -65,13 +83,13 @@ class _LoginState extends State<Login> {
           Center(
             child: new Text(
               _heading,
-              style: TextStyle(fontSize: 25.0, color: Colors.lightBlue),
+              style: TextStyle(fontSize: 28.0, color: primaryColor),
             ),
           ),
           Center(
             child: new Text(
-              'Sign In',
-              style: TextStyle(fontSize: 20.0, color: Colors.blueGrey),
+              'Sign in to your Account',
+              style: TextStyle(fontSize: 18.0, color: Colors.blueGrey),
             ),
           ),
         ],
@@ -79,31 +97,35 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Column _buildLoginCardTextFormFeild(LoginModel model) {
-    return Column(
-      children: <Widget>[
-        new ListTile(
-          leading: const Icon(Icons.person),
-          title: new TextFormField(
+  Widget _buildLoginCardTextFormFeild(LoginModel model) {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          UIHelper.verticalSpace(UIHelper.SpaceSmall),
+          UIHelper.inputField(
+            placeholder: 'Email',
             controller: model.emailController,
-            decoration: new InputDecoration(
-              hintText: 'Email',
-            ),
-            keyboardType: TextInputType.emailAddress,
+            currentFocus: emailFocus,
+            onFieldSubmitted: (v) {
+              emailFocus.unfocus();
+              FocusScope.of(context).requestFocus(passwordFocus);
+            },
+            inputType: TextInputType.emailAddress,
+            icon: Icon(Icons.email),
           ),
-        ),
-        new ListTile(
-          leading: const Icon(Icons.vpn_key),
-          title: new TextFormField(
+          UIHelper.inputField(
+            placeholder: 'Password',
             controller: model.passwordController,
-            obscureText: true,
-            decoration: new InputDecoration(
-              hintText: 'Password',
-            ),
-            keyboardType: TextInputType.emailAddress,
+            isPassword: true,
+            currentFocus: passwordFocus,
+            onFieldSubmitted: (v) {
+              passwordFocus.unfocus();
+            },
+            inputType: TextInputType.text,
+            icon: Icon(Icons.lock),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -111,19 +133,11 @@ class _LoginState extends State<Login> {
     return Container(
       padding: EdgeInsets.only(top: 25.0, bottom: 15.0),
       child: Center(
-        child: SizedBox(
-          height: 50.0,
-          width: 150.0,
-          child: new RaisedButton(
-            textColor: Color(0xFFFDFDFD),
-            color: Color(0XFF8A2763),
-            child: Text("Login"),
-            onPressed: () {
-              model.checkData(isSeller: widget.isSeller);
-            },
-            shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(30.0)),
-          ),
+        child: UIHelper.designButton(
+          title: 'Sign In',
+          onPressed: () {
+            model.checkData(isSeller: widget.isSeller);
+          },
         ),
       ),
     );
@@ -141,7 +155,7 @@ class _LoginState extends State<Login> {
                 "Forgot Password?",
                 style: TextStyle(
                     decoration: TextDecoration.underline,
-                    color: Colors.blue[300],
+                    color: primaryColor,
                     fontSize: 16.0),
               ),
             ),
@@ -152,14 +166,14 @@ class _LoginState extends State<Login> {
           child: new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              new Text('Don\'t have an account? ',
+              Text('Don\'t have an account? ',
                   style: new TextStyle(color: Color(0xFF2E3233))),
               GestureDetector(
                 child: Text(
                   "Register",
                   style: TextStyle(
                       decoration: TextDecoration.underline,
-                      color: Colors.blue[300],
+                      color: primaryColor,
                       fontSize: 17.0),
                 ),
                 onTap: () {
@@ -186,18 +200,10 @@ class _LoginState extends State<Login> {
         break;
 
       case ViewState.Error:
-        var v = state.toString();
-        print("_____Button body ___  = $v");
-
         return Center(child: Text('Error'));
         break;
 
       case ViewState.Retrieved:
-        // Fluttertoast.showToast(
-        //     msg: "Login Success",
-        //     toastLength: Toast.LENGTH_SHORT,
-        //     gravity: ToastGravity.CENTER,
-        //     timeInSecForIos: 1);
         return Center(child: Text('Success'));
         break;
       default:

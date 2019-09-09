@@ -12,7 +12,7 @@ void setupLocator() {
   // locator.registerLazySingleton<AppConfig>(() => AppConfig());
 
   // Register models
-  locator.registerFactory<HomeModel>(() => HomeModel());
-  locator.registerFactory<LoginModel>(() => LoginModel());
-  locator.registerFactory<RegisterModel>(() => RegisterModel());
+  locator.registerLazySingleton<HomeModel>(() => HomeModel());
+  locator.registerLazySingleton<LoginModel>(() => LoginModel());
+  locator.registerLazySingleton<RegisterModel>(() => RegisterModel());
 }

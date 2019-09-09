@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:new_login/scoped_models/home_model.dart';
+import 'package:new_login/ui/shared/ui_helper.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:new_login/service_locator.dart';
 import 'login_view.dart';
@@ -16,13 +17,8 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                RaisedButton(
-                  textColor: Color(0xFFFDFDFD),
-                  color: Color(0XFFEB1555),
-                  splashColor: Colors.orange,
-                  child: Text(
-                    'Customer',
-                  ),
+                UIHelper.designButton(
+                  title: 'Customer',
                   onPressed: () {
                     Navigator.push(
                         context,
@@ -33,13 +29,8 @@ class HomeView extends StatelessWidget {
                         ));
                   },
                 ),
-                RaisedButton(
-                  textColor: Color(0xFFFDFDFD),
-                  color: Color(0XFFEB1555),
-                  splashColor: Colors.orange,
-                  child: Text(
-                    'Seller',
-                  ),
+                UIHelper.designButton(
+                  title: 'Seller',
                   onPressed: () {
                     Navigator.push(
                         context,
@@ -49,7 +40,7 @@ class HomeView extends StatelessWidget {
                           ),
                         ));
                   },
-                ),
+                )
               ],
             ),
           ),

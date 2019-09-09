@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:new_login/enums/view_states.dart';
 import 'package:new_login/scoped_models/register_model.dart';
 import 'package:new_login/ui/base_view.dart';
+import 'package:new_login/ui/login_view.dart';
+import 'package:new_login/ui/shared/app_colors.dart';
+import 'package:new_login/ui/shared/ui_helper.dart';
 
 class Register extends StatefulWidget {
   final bool isSeller;
@@ -12,25 +16,35 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  final nameFocus = new FocusNode();
+  final emailFocus = new FocusNode();
+  final phoneFocus = new FocusNode();
+  final passwordFocus = new FocusNode();
+  final confPasswordFocus = new FocusNode();
+  DateTime date;
+  String dobText = 'Date of Birth';
+  var _gender = ['Male', 'Female', 'Other'];
+  var _currentItemSelected;
+
   @override
   Widget build(BuildContext context) {
     return BaseView<RegisterModel>(
       builder: (context, child, model) {
         return Scaffold(
-          resizeToAvoidBottomPadding: true,
+          resizeToAvoidBottomInset: true,
           body: SafeArea(
             child: Stack(
+              fit: StackFit.expand,
               children: <Widget>[
                 Container(
                   height: MediaQuery.of(context).size.width,
                   width: MediaQuery.of(context).size.height,
-                  // decoration: BoxDecoration(
-                  //   image: DecorationImage(
-                  //     fit: BoxFit.fitHeight,
-                  //     image: NetworkImage(
-                  //         "https://www.gstatic.com/webp/gallery/1.jpg"),
-                  //   ),
-                  // ),
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.fill,
+                      image: AssetImage('images/bgimage1.jpg'),
+                    ),
+                  ),
                 ),
                 _buildRegisterCard(model)
               ],
@@ -52,14 +66,16 @@ class _RegisterState extends State<Register> {
       ),
       child: new Wrap(children: <Widget>[
         Card(
-          color: Color(0xffFFFFFF),
-          elevation: 4.0,
+          color: Colors.white.withOpacity(0.9),
+          elevation: 8.0,
           child: new Wrap(
             children: <Widget>[
               _buildRegisterCardTitle(),
               _buildRegisterCardTextFormFeild(model),
               _buildMessageBox(model.state),
+              _buildGenderDOB(model),
               _buildRegisterButton(model),
+              _buildAlreadyAccount(),
             ],
           ),
         ),
@@ -68,8 +84,9 @@ class _RegisterState extends State<Register> {
   }
 
   Container _buildRegisterCardTitle() {
-    var _heading =
-        (widget.isSeller == true) ? 'Welcome Seller' : 'Welcome Customer';
+    var _heading = (widget.isSeller == true)
+        ? 'Create & start Selling'
+        : 'Create & start Buying';
     return new Container(
       margin: EdgeInsets.all(10.0),
       child: Column(
@@ -77,100 +94,171 @@ class _RegisterState extends State<Register> {
           Center(
             child: new Text(
               _heading,
-              style: TextStyle(fontSize: 25.0, color: Colors.lightBlue),
+              style: TextStyle(fontSize: 25.0, color: primaryColor),
             ),
           ),
-          Center(
-            child: new Text(
-              'Sign Up',
-              style: TextStyle(fontSize: 20.0, color: Colors.blueGrey),
-            ),
-          ),
+          // Center(
+          //   child: new Text(
+          //     'Create Account',
+          //     style: TextStyle(fontSize: 20.0, color: Colors.blueGrey),
+          //   ),
+          // ),
         ],
       ),
     );
   }
 
   Widget _buildRegisterCardTextFormFeild(RegisterModel model) {
-    return SingleChildScrollView(
+    return Container(
       child: Column(
         children: <Widget>[
-          new ListTile(
-            leading: const Icon(Icons.person),
-            title: new TextFormField(
-              controller: model.nameController,
-              decoration: new InputDecoration(
-                hintText: 'Name',
-              ),
-              keyboardType: TextInputType.text,
-              obscureText: true,
-            ),
+          // UIHelper.verticalSpaceSmall(),
+          UIHelper.inputField(
+            placeholder: 'Name',
+            controller: model.nameController,
+            icon: Icon(Icons.person),
+            currentFocus: nameFocus,
+            onFieldSubmitted: (v) {
+              nameFocus.unfocus();
+              FocusScope.of(context).requestFocus(emailFocus);
+            },
           ),
-          new ListTile(
-            leading: const Icon(Icons.email),
-            title: new TextFormField(
-              controller: model.emailController,
-              decoration: new InputDecoration(
-                hintText: 'Email',
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
+          UIHelper.inputField(
+            placeholder: 'Email',
+            controller: model.emailController,
+            icon: Icon(Icons.email),
+            inputType: TextInputType.emailAddress,
+            currentFocus: emailFocus,
+            onFieldSubmitted: (v) {
+              emailFocus.unfocus();
+              FocusScope.of(context).requestFocus(phoneFocus);
+            },
           ),
-          new ListTile(
-            leading: const Icon(Icons.phone),
-            title: new TextFormField(
-              controller: model.phoneController,
-              decoration: new InputDecoration(
-                hintText: 'Phone',
-              ),
-              keyboardType: TextInputType.number,
-            ),
+          UIHelper.inputField(
+            placeholder: 'Phone',
+            controller: model.phoneController,
+            icon: Icon(Icons.phone),
+            inputType: TextInputType.phone,
+            currentFocus: phoneFocus,
+            onFieldSubmitted: (v) {
+              phoneFocus.unfocus();
+              FocusScope.of(context).requestFocus(passwordFocus);
+            },
           ),
-          new ListTile(
-            leading: const Icon(Icons.lock),
-            title: new TextFormField(
-              controller: model.passwordController,
-              decoration: new InputDecoration(
-                hintText: 'Password',
-              ),
-              keyboardType: TextInputType.text,
-              obscureText: true,
-            ),
+          UIHelper.inputField(
+            placeholder: 'Password',
+            controller: model.passwordController,
+            isPassword: true,
+            icon: Icon(Icons.lock_outline),
+            currentFocus: passwordFocus,
+            onFieldSubmitted: (v) {
+              passwordFocus.unfocus();
+              FocusScope.of(context).requestFocus(confPasswordFocus);
+            },
           ),
-          new ListTile(
-            leading: const Icon(Icons.lock_outline),
-            title: new TextFormField(
-              controller: model.confPasswordController,
-              decoration: new InputDecoration(
-                hintText: 'Confirm Password',
-              ),
-              keyboardType: TextInputType.text,
-              obscureText: true,
-            ),
+          UIHelper.inputField(
+            placeholder: 'Confirm Password',
+            controller: model.confPasswordController,
+            isPassword: true,
+            icon: Icon(Icons.lock),
+            currentFocus: confPasswordFocus,
+            onFieldSubmitted: (v) {
+              confPasswordFocus.unfocus();
+              // FocusScope.of(context).requestFocus(passwordFocus);
+            },
           ),
         ],
       ),
     );
   }
 
-  Container _buildRegisterButton(RegisterModel model) {
-    return new Container(
-      padding: EdgeInsets.only(top: 25.0, bottom: 15.0),
-      child: Center(
-        child: SizedBox(
-          height: 50.0,
-          width: 150.0,
-          child: new MaterialButton(
-              textColor: Color(0xFFFDFDFD),
-              color: Color(0XFF8A2763),
-              splashColor: Colors.orange,
-              child: Text("Register"),
-              onPressed: () {
-                model.saveData(isSeller: widget.isSeller);
-              },
-              shape: RoundedRectangleBorder(
-                  borderRadius: new BorderRadius.circular(30.0))),
+  Widget _buildGenderDOB(RegisterModel model) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: <Widget>[
+        DropdownButton<String>(
+          hint: Text(
+            'Gender',
+          ),
+          items: _gender.map((String dropDownStringItem) {
+            return DropdownMenuItem<String>(
+              value: dropDownStringItem,
+              child: Text(
+                dropDownStringItem,
+              ),
+            );
+          }).toList(),
+          onChanged: (String newValueSelected) {
+            setState(() {
+              this._currentItemSelected = newValueSelected;
+              model.gender = newValueSelected;
+            });
+          },
+          value: _currentItemSelected,
         ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            RaisedButton(
+              child: Text(
+                dobText,
+              ),
+              color: Colors.grey.shade200,
+              onPressed: () {
+                showDatePicker(
+                  context: context,
+                  initialDate: date == null ? DateTime.now() : date,
+                  firstDate: DateTime(1960),
+                  lastDate: DateTime(2020),
+                ).then((_date) {
+                  setState(() {
+                    date = _date;
+                    dobText = DateFormat('dd MMM yyyy').format(date);
+                    model.dob = date.toString().substring(0, 10);
+                  });
+                });
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegisterButton(RegisterModel model) {
+    return new Container(
+      child: Center(
+        child: UIHelper.designButton(
+          title: 'Create',
+          onPressed: () {
+            model.saveData(isSeller: widget.isSeller);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAlreadyAccount() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 10.0, top: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('Already have account? ',
+              style: new TextStyle(color: Color(0xFF2E3233))),
+          GestureDetector(
+            child: Text(
+              "Sign In",
+              style: TextStyle(
+                  decoration: TextDecoration.underline,
+                  color: primaryColor,
+                  fontSize: 17.0),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }

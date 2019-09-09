@@ -7,9 +7,9 @@ import 'package:new_login/service_locator.dart';
 class LoginModel extends Model {
   StorageService storageService = locator<StorageService>();
 
-  // TextEditingController emailController, passwordController;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final passFocus = new FocusNode();
 
   ViewState _state = ViewState.Idle;
   ViewState get state => _state;

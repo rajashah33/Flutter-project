@@ -7,17 +7,14 @@ import 'package:new_login/service_locator.dart';
 class RegisterModel extends Model {
   StorageService storageService = locator<StorageService>();
 
-  // TextEditingController emailController,
-  //     nameController,
-  //     phoneController,
-  //     passwordController,
-  //     confPasswordController;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confPasswordController = TextEditingController();
 
+  var gender;
+  var dob;
   ViewState _state;
   ViewState get state => _state;
   void saveData({Key key, @required bool isSeller}) async {
@@ -29,6 +26,8 @@ class RegisterModel extends Model {
           emailController.text,
           phoneController.text,
           passwordController.text,
+          gender,
+          dob,
           isSeller);
       if (result == true) {
         _setState(ViewState.Retrieved);
